@@ -672,19 +672,20 @@
                     </button>
                 </div>
                 <div class="chatbot-body" id="chatbotBody">
-                    <div class="message bot-message">
-                        <strong>LaporBot:</strong> Halo! Saya bisa bantu rekomendasikan kuliner sesuai preferensi Anda. Cuaca hari ini cerah, ingin rekomendasi apa?
-                    </div>
+                    <!-- Pesan chat akan dirender di sini -->
                 </div>
                 <div class="chatbot-input">
-                    <input type="text" placeholder="Ketik pesan..." id="chatInput">
+                    <input type="text" placeholder="Tanya kuliner..." id="chatInput">
                     <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
                 </div>
+                 <div id="chatStatus" style="padding: 0 15px 10px; font-style: italic; color: #666;"></div>
             </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
