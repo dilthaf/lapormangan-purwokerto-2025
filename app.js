@@ -395,12 +395,11 @@ function setupEventListeners() {
     const closeChatbot = document.getElementById('closeChatbot');
 
     chatbotToggle.addEventListener('click', () => {
-        const isChatbotVisible = chatbotContainer.style.display === 'block';
-        chatbotContainer.style.display = isChatbotVisible ? 'none' : 'block';
+        chatbotContainer.classList.toggle('visible');
     });
 
     closeChatbot.addEventListener('click', () => {
-        chatbotContainer.style.display = 'none';
+        chatbotContainer.classList.remove('visible');
     });
 
     document.getElementById('sendButton').addEventListener('click', sendChat);
