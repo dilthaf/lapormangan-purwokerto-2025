@@ -265,6 +265,41 @@ function filterByCategory(category) {
     renderMapMarkers(filteredPlaces);
 }
 
+// Fungsi filter dari dropdown Makanan/Minuman
+function applyFilter() {
+    const filterValue = document.getElementById('filterKategori').value;
+    
+    // Reset filter tags
+    document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+    // Set "Semua" tag to active if dropdown is cleared
+    if (filterValue === "") {
+        document.querySelector('.filter-tag[data-category="semua"]').classList.add('active');
+    }
+
+    let filteredPlaces;
+    if (filterValue === "") {
+        filteredPlaces = kulinerData;
+    } else {
+        // Asumsi kategori minuman. Bisa disesuaikan jika ada data kategori yang lebih spesifik.
+        const drinkKeywords = ['kopi', 'teh', 'jus', 'minum']; 
+        
+        filteredPlaces = kulinerData.filter(place => {
+            const placeCategory = place.kategori.toLowerCase();
+            if (filterValue === "Makanan") {
+                // Tampilkan semua yang BUKAN minuman
+                return !drinkKeywords.some(keyword => placeCategory.includes(keyword));
+            }
+            if (filterValue === "Minuman") {
+                // Tampilkan semua yang merupakan minuman
+                return drinkKeywords.some(keyword => placeCategory.includes(keyword));
+            }
+            return true;
+        });
+    }
+    renderPlacesList(filteredPlaces);
+    renderMapMarkers(filteredPlaces);
+}
+
 // Fungsi pencarian
 function searchPlaces(query) {
     let filteredPlaces;
@@ -370,6 +405,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Filter tag interaction
         document.querySelectorAll('.filter-tag').forEach(tag => {
             tag.addEventListener('click', function() {
+                // Reset dropdown filter when a tag is clicked
+                document.getElementById('filterKategori').value = "";
+
                 document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 filterByCategory(this.dataset.category);
