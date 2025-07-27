@@ -171,25 +171,6 @@
             border-color: var(--bittersweet-shimmer);
         }
 
-        #filterKategori {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--thistle);
-            border-radius: 25px;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            background: var(--azure-web);
-            margin-bottom: 10px;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23c53e4e' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            cursor: pointer;
-        }
-
         .places-list {
             flex: 1;
             overflow-y: auto;
@@ -633,12 +614,6 @@
                 <div class="filter-header">
                     <h3>Filter Kategori</h3>
                 </div>
-                <!-- Filter Dropdown -->
-                <select id="filterKategori" onchange="applyFilter()">
-                  <option value="">Semua</option>
-                  <option value="Makanan">Makanan</option>
-                  <option value="Minuman">Minuman</option>
-                </select>
                 <div class="filter-tags">
                     <div class="filter-tag active" data-category="semua">Semua</div>
                     <div class="filter-tag" data-category="soto">Soto</div>

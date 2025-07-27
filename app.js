@@ -1,11 +1,11 @@
 // --- KONFIGURASI & DATA AWAL ---
 
 // Kunci API untuk layanan eksternal (JANGAN HARDCODE DI SINI PADA PRODUKSI)
-// Ganti dengan kunci API Anda yang sebenarnya
-const GEMINI_API_KEY = "AIzaSyCaQGAjH9vCtLeBuZy02htWd8gj9PQ5ZeU"; 
+// Ganti dengan kunci API Anda yang sebenarnya dari Google AI Studio
+const GEMINI_API_KEY = "MASUKKAN_API_KEY_GEMINI_ANDA_DISINI";
 
-// URL API untuk mengambil data kuliner dari Google Sheet
-const OPENSHEET_URL = 'https://opensheet.elk.sh/1s1WgKAsoPLYvdoTKP0wGcenlcnGJQQv4ggY4JmZEUHE/Asli';
+// URL API untuk mengambil data kuliner dari Google Sheet (dinonaktifkan untuk mode statis)
+// const OPENSHEET_URL = 'https://opensheet.elk.sh/1s1WgKAsoPLYvdoTKP0wGcenlcnGJQQv4ggY4JmZEUHE/Asli';
 
 // Data kuliner awal (MVP) untuk ditampilkan sebelum data dari API dimuat
 const initialKulinerData = [
@@ -24,24 +24,14 @@ let markers = [];
 // --- FUNGSI UTAMA ---
 
 // Inisialisasi aplikasi saat DOM selesai dimuat
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     initMap();
     setupEventListeners();
     displayWeather(); // Panggil fungsi cuaca
     
-    // Muat data awal, lalu fetch data dari API dan gabungkan
+    // Muat data dari array statis
     kulinerData = [...initialKulinerData];
     renderAll();
-
-    try {
-        const apiData = await fetchData();
-        const processedApiData = processData(apiData);
-        kulinerData = mergeData(initialKulinerData, processedApiData);
-        renderAll();
-    } catch (error) {
-        console.error('Gagal memuat data dari API:', error);
-        // Tampilkan pesan error jika diperlukan
-    }
 });
 
 // Merender ulang semua komponen (daftar tempat dan marker)
@@ -53,50 +43,15 @@ function renderAll() {
     }
 }
 
-// --- PENGAMBILAN & PEMROSESAN DATA ---
-
-// Mengambil data dari OpenSheet API
-async function fetchData() {
-    try {
-        const response = await fetch(OPENSHEET_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        throw error;
-    }
-}
-
-// Memproses data mentah dari API menjadi format yang konsisten
-function processData(apiData) {
-    return apiData.map((item, index) => ({
-        id: `api-${index + 1}`, // ID unik untuk data API
-        nama_kuliner: item['Nama Kuliner'] || 'Nama Tidak Tersedia',
-        kategori: item['Kategori'] || 'Kategori Tidak Tersedia',
-        alamat: item['Alamat'] || 'Alamat Tidak Tersedia',
-        latitude: item['Latitude'] ? parseFloat(item['Latitude']) : null,
-        longitude: item['Longitude'] ? parseFloat(item['Longitude']) : null,
-        jam_buka: item['Jam Buka'] || '00:00',
-        jam_tutup: item['Jam Tutup'] || '00:00',
-        harga_min: item['Harga Min'] ? parseInt(String(item['Harga Min']).replace(/[^0-9]/g, '')) : 0,
-        harga_max: item['Harga Max'] ? parseInt(String(item['Harga Max']).replace(/[^0-9]/g, '')) : 0,
-        tukang_parkir: item['Tukang Parkir'] || 'Tidak Ada',
-        foto_url: item['Foto URL'] || 'https://placehold.co/300x200?text=Foto'
-    }));
-}
-
-// Menggabungkan data awal dengan data API, menghindari duplikasi
-function mergeData(initialData, apiData) {
-    const combined = [...initialData];
-    const initialNames = new Set(initialData.map(d => d.nama_kuliner.toLowerCase()));
-
-    apiData.forEach(item => {
-        if (!initialNames.has(item.nama_kuliner.toLowerCase())) {
-            combined.push(item);
-        }
-    });
-    return combined;
-}
+// --- PENGAMBILAN & PEMROSESAN DATA (Mode Statis) ---
+// Fungsi-fungsi di bawah ini (fetchData, processData, mergeData) tidak digunakan
+// saat aplikasi berjalan dalam mode data statis.
+// Mereka disimpan di sini untuk referensi jika ingin mengaktifkan kembali fitur API.
+/*
+async function fetchData() { ... }
+function processData(apiData) { ... }
+function mergeData(initialData, apiData) { ... }
+*/
 
 
 // --- RENDER KOMPONEN UI ---
@@ -255,20 +210,42 @@ function searchPlaces(query) {
 // --- CHATBOT AI (GEMINI) & CUACA ---
 
 // Mengirim pesan ke Gemini dan menampilkan respons
-async function sendChat() {
-    const input = document.getElementById("chatInput").value.trim();
+async function sendChat(predefinedMessage = "") {
+    const input = predefinedMessage || document.getElementById("chatInput").value.trim();
     if (!input) return;
 
-    addChatMessage(input, 'user');
+    if (!predefinedMessage) {
+        addChatMessage(input, 'user');
+    }
     document.getElementById("chatInput").value = "";
+
+    // Cek apakah API key sudah diisi
+    if (GEMINI_API_KEY === "MASUKKAN_API_KEY_GEMINI_ANDA_DISINI" || !GEMINI_API_KEY) {
+        addChatMessage("Waduh, sepertinya API Key untuk AI belum diatur nih. Minta developernya untuk memasukkan API Key Gemini di file `app.js` ya!", 'bot');
+        return;
+    }
+
     document.getElementById("chatStatus").textContent = "Bot sedang mengetik...";
 
     try {
         const weather = await getWeatherForChat();
-        const prompt = `Kamu adalah LaporBot, asisten kuliner AI dari Purwokerto. Cuaca saat ini: ${weather.description}. Berikan rekomendasi kuliner yang relevan dan jawab pertanyaan ini: "${input}"`;
+        // Membuat prompt yang lebih canggih dengan konteks data kuliner dan persona
+        const contextPrompt = `
+            Kamu adalah "ManganAI", asisten kuliner gaul dan super ramah dari Purwokerto.
+            Gaya bicaramu santai dan asik, kayak ngobrol sama teman.
+            Kamu tahu semua soal kuliner enak di Purwokerto.
+            
+            Ini beberapa data kuliner yang kamu tahu (gunakan sebagai referensi, jangan tampilkan list ini mentah-mentah):
+            ${JSON.stringify(kulinerData.map(p => ({ nama: p.nama_kuliner, kategori: p.kategori, harga: `Rp${p.harga_min} - Rp${p.harga_max}` })), null, 2)}
+
+            Kondisi cuaca saat ini: ${weather.description}.
+            
+            Sekarang, jawab pertanyaan dari pengguna dengan gaya khasmu yang asik itu. Berikan jawaban dalam format Markdown.
+            Pertanyaan: "${input}"
+        `;
         
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash/generateContent?key=${GEMINI_API_KEY}`;
-        const payload = { contents: [{ parts: [{ text: prompt }] }] };
+        const payload = { contents: [{ parts: [{ text: contextPrompt }] }] };
 
         const response = await fetch(url, {
             method: "POST",
@@ -276,14 +253,18 @@ async function sendChat() {
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API Error Data:", errorData);
+            throw new Error(`API Error: ${response.statusText} - ${errorData.error?.message || 'Cek console untuk detail'}`);
+        }
         
         const data = await response.json();
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, terjadi kesalahan.";
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Waduh, aku lagi bingung nih. Coba tanya lagi yang lain ya.";
         addChatMessage(reply, 'bot');
 
     } catch (err) {
-        addChatMessage('Gagal terhubung ke AI. Coba lagi nanti.', 'bot');
+        addChatMessage(`Aduh, ada masalah nih pas nyambung ke AI. Mungkin API key-nya salah atau ada gangguan jaringan. Coba cek console ya. Error: ${err.message}`, 'bot');
         console.error("Chatbot error:", err);
     } finally {
         document.getElementById("chatStatus").textContent = "";
@@ -396,13 +377,17 @@ function setupEventListeners() {
 
     chatbotToggle.addEventListener('click', () => {
         chatbotContainer.classList.toggle('visible');
+        // Kirim pesan selamat datang jika chatbot baru saja dibuka dan belum ada pesan
+        if (chatbotContainer.classList.contains('visible') && document.querySelectorAll('.message').length === 0) {
+            sendChat("Halo! Aku ManganAI. Ada yang bisa kubantu seputar kuliner Purwokerto?");
+        }
     });
 
     closeChatbot.addEventListener('click', () => {
         chatbotContainer.classList.remove('visible');
     });
 
-    document.getElementById('sendButton').addEventListener('click', sendChat);
+    document.getElementById('sendButton').addEventListener('click', () => sendChat());
     document.getElementById('chatInput').addEventListener('keypress', e => {
         if (e.key === 'Enter') sendChat();
     });
