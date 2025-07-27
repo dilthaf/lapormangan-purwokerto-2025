@@ -348,12 +348,20 @@ function setupEventListeners() {
         tag.addEventListener('click', () => filterByCategory(tag.dataset.category));
     });
     document.getElementById('searchInput').addEventListener('input', e => searchPlaces(e.target.value));
-    document.getElementById('chatbotToggle').addEventListener('click', () => {
-        document.getElementById('chatbotContainer').style.display = 'block';
+    
+    const chatbotToggle = document.getElementById('chatbotToggle');
+    const chatbotContainer = document.getElementById('chatbotContainer');
+    const closeChatbot = document.getElementById('closeChatbot');
+
+    chatbotToggle.addEventListener('click', () => {
+        const isChatbotVisible = chatbotContainer.style.display === 'block';
+        chatbotContainer.style.display = isChatbotVisible ? 'none' : 'block';
     });
-    document.getElementById('closeChatbot').addEventListener('click', () => {
-        document.getElementById('chatbotContainer').style.display = 'none';
+
+    closeChatbot.addEventListener('click', () => {
+        chatbotContainer.style.display = 'none';
     });
+
     document.getElementById('sendButton').addEventListener('click', sendChat);
     document.getElementById('chatInput').addEventListener('keypress', e => {
         if (e.key === 'Enter') sendChat();
