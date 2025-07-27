@@ -2,7 +2,7 @@
 
 // Kunci API untuk layanan eksternal (JANGAN HARDCODE DI SINI PADA PRODUKSI)
 // Ganti dengan kunci API Anda yang sebenarnya dari Google AI Studio
-const GEMINI_API_KEY = "MASUKKAN_API_KEY_GEMINI_ANDA_DISINI";
+const GEMINI_API_KEY = "AIzaSyDJfUcm5OEoHK5FhVO_UMIYS8g52r4ar0A";
 
 // URL API untuk mengambil data kuliner dari Google Sheet (dinonaktifkan untuk mode statis)
 // const OPENSHEET_URL = 'https://opensheet.elk.sh/1s1WgKAsoPLYvdoTKP0wGcenlcnGJQQv4ggY4JmZEUHE/Asli';
