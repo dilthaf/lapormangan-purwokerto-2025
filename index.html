@@ -64,6 +64,17 @@
             gap: 8px;
         }
 
+        .weather-widget {
+            font-size: 0.85rem;
+            font-weight: 400;
+            opacity: 0.95;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
         .header p {
             font-size: 0.85rem;
             opacity: 0.95;
@@ -461,11 +472,11 @@
         /* Chatbot FAB */
         .chatbot-fab {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
+            bottom: 90px; /* Adjusted to avoid overlap */
+            right: 25px;
             width: 60px;
             height: 60px;
-            background-color: #00B900; /* LINE green */
+            background-color: var(--bittersweet-shimmer); /* Changed color */
             color: white;
             border-radius: 50%;
             border: none;
@@ -494,6 +505,13 @@
                 height: 45vh;
                 box-shadow: 0 -3px 15px rgba(0,0,0,0.1);
                 z-index: 110;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .places-list {
+                flex-grow: 1;
+                overflow-y: auto; /* Ensure scrolling */
             }
             
             .map-area {
@@ -509,6 +527,7 @@
             .chatbot-fab {
                 bottom: calc(45vh + 20px);
                 right: 20px;
+                z-index: 120; /* Ensure it's above the sidebar */
             }
         }
 
@@ -584,6 +603,9 @@
             <div class="header">
                 <h1><i class="fas fa-utensils"></i> Lapor Mangan!</h1>
                 <p>Peta Kuliner Purwokerto</p>
+                <div class="weather-widget" id="weatherWidget">
+                    <span>Memuat cuaca...</span>
+                </div>
             </div>
             
             <div class="search-bar">

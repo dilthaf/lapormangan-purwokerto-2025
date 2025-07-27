@@ -27,6 +27,7 @@ let markers = [];
 document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     setupEventListeners();
+    displayWeather(); // Panggil fungsi cuaca
     
     // Muat data awal, lalu fetch data dari API dan gabungkan
     kulinerData = [...initialKulinerData];
@@ -331,7 +332,47 @@ async function getWeatherForChat() {
     }
 }
 
-// --- FUNGSI PEMBANTU ---
+// --- FUNGSI PEMBANTU & CUACA ---
+
+// Menampilkan cuaca saat ini di UI
+async function displayWeather() {
+    const weatherWidget = document.getElementById('weatherWidget');
+    try {
+        // Koordinat pusat Purwokerto
+        const lat = -7.43139;
+        const lon = 109.24783;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=Asia/Jakarta`;
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Gagal mengambil data cuaca');
+        
+        const data = await response.json();
+        const weather = data.current_weather;
+        const description = getWeatherDescription(weather.weathercode);
+        const icon = getWeatherIcon(weather.weathercode);
+
+        weatherWidget.innerHTML = `
+            <i class="fas ${icon}"></i>
+            <span>${weather.temperature}°C, ${description}</span>
+        `;
+    } catch (error) {
+        console.error('Error fetching weather:', error);
+        weatherWidget.innerHTML = '<span>Gagal memuat cuaca</span>';
+    }
+}
+
+// Mendapatkan ikon Font Awesome berdasarkan kode cuaca
+function getWeatherIcon(code) {
+    const icons = {
+        0: 'fa-sun', 1: 'fa-cloud-sun', 2: 'fa-cloud', 3: 'fa-cloud-meatball',
+        45: 'fa-smog', 48: 'fa-smog',
+        51: 'fa-cloud-rain', 53: 'fa-cloud-rain', 55: 'fa-cloud-showers-heavy',
+        61: 'fa-cloud-rain', 63: 'fa-cloud-showers-heavy', 65: 'fa-cloud-showers-heavy',
+        80: 'fa-cloud-showers-heavy', 81: 'fa-cloud-showers-heavy', 82: 'fa-cloud-showers-heavy',
+        95: 'fa-bolt'
+    };
+    return icons[code] || 'fa-question-circle';
+}
 
 // Inisialisasi peta Leaflet
 function initMap() {
